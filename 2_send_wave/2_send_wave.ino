@@ -1,7 +1,3 @@
-
-TaskHandle_t frame_send_task;
-
-
 int running_mode = 0;
 // 0 - idle
 // 1 - sine wave
@@ -49,9 +45,6 @@ void loop() {
   }
 }
 
-
-
-
 void printHex(int num, int precision) {
   char tmp[16];
   char format[128];
@@ -69,9 +62,6 @@ void sendFrame() {
   empty_ticks = 0;
 }
 
-void sendFrameTask() {
-  }
-
 void startModeIdle() {
   running_mode = 0;
 }
@@ -81,6 +71,22 @@ void startModeWave() {
 }
 
 void stepModeIdle() {
+  // return to zero if not currently there
+  if (cur_position != 0) {
+    if ((cur_step > 0 && cur_step < cur_speed) || (cur_step < 0 && cur_step > (cur_speed * -1))) {
+      cur_position = 0;
+    } else {
+      float next_speed = cur_speed;
+      if (cur_step > 0) {
+        // invert to go backwards towards zero
+        next_speed = next_speed * -1;
+      }
+
+      cur_step = cur_step + next_speed;
+      cur_position = cos(cur_step) * 1000;
+    }
+    
+  }
 }
 
 void stepModeWave() {
