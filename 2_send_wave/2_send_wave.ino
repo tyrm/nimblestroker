@@ -3,7 +3,9 @@ int running_mode = 0;
 // 1 - sine wave
 
 float cur_step = 0;
-float cur_speed = 0.005;
+float cur_speed = 0.5;
+
+bool serial_output_plotter = false;
 
 bool frame_ack = false;
 int frame_position = 0;
@@ -113,11 +115,18 @@ void sendFrame() {
   state_code[5] = f_l;
   state_code[6] = f_h;
 
-  for (int i = 0; i < 7; i++) {
-    printHex(state_code[i], 2);
+  if (serial_output_plotter) {
+    Serial.print(cur_step, DEC);
+    Serial.print(",");
+    Serial.print(frame_position, DEC);
+    Serial.println();
+  } else {
+    for (int i = 0; i < 7; i++) {
+      printHex(state_code[i], 2);
+    }
+    Serial.println();
   }
 
-  Serial.println();
   Serial1.write(state_code, 7);
   delay(1);
 }
@@ -135,26 +144,27 @@ void startModeWave() {
 void stepModeIdle() {
   // return to zero if not currently there
   if (frame_position != 0) {
-    if ((cur_step > 0 && cur_step < cur_speed) || (cur_step < 0 && cur_step > (cur_speed * -1))) {
+    if ((cur_step > 0 && cur_step <= cur_speed) || (cur_step < 0 && cur_step >= (cur_speed * -1))) {
       // if the step is less than the next delta go to zero to prevent wabling
+      cur_step = 0;
       frame_position = 0;
     } else {
       float next_speed = cur_speed;
-      if (cur_step < 0.5) {
+      if (cur_step <= 90 || (180 <= cur_step && cur_step <= 270)){
         // invert to go backwards towards zero
         next_speed = next_speed * -1;
       }
 
       cur_step = cur_step + next_speed;
-      frame_position = sin(cur_step) * 1000;
+      frame_position = sin(radians(cur_step)) * 1000;
     }
   }
 }
 
 void stepModeWave() {
     cur_step = cur_step + cur_speed;
-    if (cur_step == 1) {
+    if (cur_step >= 360) {
       cur_step = 0;
     }
-    frame_position = sin(cur_step) * 1000;
+    frame_position = sin(radians(cur_step)) * 1000;
 }
