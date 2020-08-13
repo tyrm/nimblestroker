@@ -80,7 +80,6 @@ void sendFrame() {
   state_code[1] = f_l;
   state_code[2] = f_h;
   
-
   // force bytes
   f_value = frame_force;
   f_negative = false;
@@ -137,6 +136,7 @@ void stepModeIdle() {
   // return to zero if not currently there
   if (frame_position != 0) {
     if ((cur_step > 0 && cur_step < cur_speed) || (cur_step < 0 && cur_step > (cur_speed * -1))) {
+      // if the step is less than the next delta go to zero to prevent wabling
       frame_position = 0;
     } else {
       float next_speed = cur_speed;
