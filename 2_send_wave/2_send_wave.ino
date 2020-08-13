@@ -73,10 +73,10 @@ void sendFrame() {
   }
 
   byte f_l = f_value & 0xFF;
-  byte f_h = f_value >> 8 & 0x07;
+  byte f_h = f_value >> 8 & 0x03;
 
   if (f_negative) {
-    f_h = f_h | 0x08;
+    f_h = f_h | 0x04;
   }
   
   state_code[1] = f_l;
@@ -93,7 +93,7 @@ void sendFrame() {
   }
 
   f_l = f_value & 0xFF;
-  f_h = f_value >> 8 & 0x07;
+  f_h = f_value >> 8 & 0x03;
 
   if (f_negative) {
     f_h = f_h | 0x08;
@@ -156,7 +156,7 @@ void stepModeIdle() {
       }
 
       cur_step = cur_step + next_speed;
-      frame_position = sin(radians(cur_step)) * 1000;
+      frame_position = sin(radians(cur_step)) * 750;
     }
   }
 }
@@ -166,5 +166,5 @@ void stepModeWave() {
     if (cur_step >= 360) {
       cur_step = 0;
     }
-    frame_position = sin(radians(cur_step)) * 1000;
+    frame_position = sin(radians(cur_step)) * 750;
 }
