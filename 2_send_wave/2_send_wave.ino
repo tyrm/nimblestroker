@@ -13,6 +13,9 @@ int frame_force = 1023;
 
 int last_send;
 
+// Config
+int wave_max = 750;
+
 void setup() {
   Serial.begin(115200);
   Serial1.begin(115200);
@@ -156,7 +159,7 @@ void stepModeIdle() {
       }
 
       cur_step = cur_step + next_speed;
-      frame_position = sin(radians(cur_step)) * 750;
+      frame_position = sin(radians(cur_step)) * wave_max;
     }
   }
 }
@@ -166,5 +169,5 @@ void stepModeWave() {
     if (cur_step >= 360) {
       cur_step = 0;
     }
-    frame_position = sin(radians(cur_step)) * 750;
+    frame_position = sin(radians(cur_step)) * wave_max;
 }
