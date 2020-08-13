@@ -1,17 +1,21 @@
-int running_mode = 0;
-// 0 - idle
-// 1 - sine wave
+// Config
+bool serial_output_plotter = true;
+
+// Globals
+int running_mode = 0; // 0 - idle,  1 - sine wave
+float running_hz = 1.0;
 
 float cur_step = 0;
 float cur_speed = 0.5;
 
-bool serial_output_plotter = true;
+
+int last_send;
+
+// Frame Values
 
 bool frame_ack = false;
 int frame_position = 0;
 int frame_force = 1023;
-
-int last_send;
 
 // Config
 int wave_max = 750;
@@ -131,7 +135,6 @@ void sendFrame() {
   }
 
   Serial1.write(state_code, 7);
-  delay(1);
 }
 
 void startModeIdle() {
@@ -165,9 +168,9 @@ void stepModeIdle() {
 }
 
 void stepModeWave() {
-    cur_step = cur_step + cur_speed;
-    if (cur_step >= 360) {
-      cur_step = 0;
-    }
-    frame_position = sin(radians(cur_step)) * wave_max;
+  int r_millis = running_hz * 1000;
+  int m_millis = millis() % r_millis;
+  float t_pos = float(m_millis) / r_millis;
+  
+  frame_position = sin(radians(t_pos*360)) * wave_max;
 }
