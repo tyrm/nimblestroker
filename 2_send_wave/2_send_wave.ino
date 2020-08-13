@@ -81,7 +81,7 @@ void sendFrame() {
   state_code[2] = f_h;
   
 
-  // position bytes
+  // force bytes
   f_value = frame_force;
   f_negative = false;
 
