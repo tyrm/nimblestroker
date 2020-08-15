@@ -30,6 +30,8 @@ float ns_nature = 0.2;    // speed in hz of the secondary wave
 
 bool device_connected = false;
 
+int wave1_degrees = 0;
+
 bool frame_ack = false;
 bool frame_air_in = false;
 bool frame_air_out = false;
@@ -38,13 +40,13 @@ int frame_force = 1023;
 
 // Functions
 void printHex(int num, int precision) {
-     char tmp[16];
-     char format[128];
-
-     sprintf(format, "%%.%dX", precision);
-
-     sprintf(tmp, format, num);
-     Serial.print(tmp);
+  char tmp[16];
+  char format[128];
+  
+  sprintf(format, "%%.%dX", precision);
+  
+  sprintf(tmp, format, num);
+  Serial.print(tmp);
 }
 
 void sendFrame() {
@@ -125,19 +127,29 @@ void sendFrame() {
   Serial1.write(state_code, 7);
 }
 
+void stepModeWave() {
+  int speed_millis = ns_speed * 1000;
+  int mod_millis = millis() % speed_millis;
+  float temp_pos = float(mod_millis) / speed_millis;
+  wave1_degrees = temp_pos * 360;
+
+  int wave1_max = ns_stroke - ns_texture;
+  frame_position = sin(radians(wave1_degrees)) * wave1_max;
+}
+
 // Callback Classes
 class NSServerCallbacks: public BLEServerCallbacks {
-    void onConnect(BLEServer* pServer) {
-      device_connected = true;
-    };
+  void onConnect(BLEServer* pServer) {
+    device_connected = true;
+  };
 
-    void onDisconnect(BLEServer* pServer) {
-      device_connected = false;
+  void onDisconnect(BLEServer* pServer) {
+    device_connected = false;
 
-      if (idle_on_client_disconnect) {
-        ns_mode = 0; // Go idle on client disconnect
-      }
+    if (idle_on_client_disconnect) {
+      ns_mode = 0; // Go idle on client disconnect
     }
+  }
 };
 
 class ModeCallbacks: public BLECharacteristicCallbacks {
@@ -207,7 +219,6 @@ class SpeedCallbacks: public BLECharacteristicCallbacks {
     }
   }
 };
-
 
 class TextureCallbacks: public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
@@ -335,4 +346,13 @@ void setup() {
 
 void loop() {
   sendFrame();
+
+  switch (ns_mode) {
+    case 1:
+      stepModeWave();
+      break;
+    default:
+      stepModeIdle();
+      break;
+  }
 }
