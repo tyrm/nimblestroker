@@ -12,6 +12,7 @@
 
 // Config
 const bool idle_on_client_disconnect = true;
+const int idle_return_speed = 3;
 const bool serial_output_plotter = true;
 
 // Globals
@@ -26,7 +27,7 @@ uint8_t ns_mode = 0;      // 0 - idle, 1 - wave
 uint16_t ns_stroke = 750; // maximum magnitude of stroke (primary wave magnitude will be ns_stroke - ns_texture)
 float ns_speed = 1.0;     // speed in hz of the primary wave
 uint16_t ns_texture = 0;  // magnitude of the secondary wave
-float ns_nature = 0.2;    // speed in hz of the secondary wave
+float ns_nature = 10;     // speed in hz of the secondary wave
 
 bool device_connected = false;
 
@@ -133,19 +134,37 @@ void sendFrame() {
 
 void stepModeIdle() {
   // return to zero
-  if (frame_position != 0) {
-    frame_position = frame_position / 2;
+  if ((idle_return_speed * -1) < frame_position && frame_position < 0) {
+    frame_position = 0;
+  }
+  else if (0 < frame_position && frame_position < idle_return_speed) {
+    frame_position = 0;
+  }
+  else if (frame_position > 0) {
+    frame_position = frame_position - idle_return_speed;
+  }
+  else if (frame_position < 0) {  
+    frame_position = frame_position + idle_return_speed;
   }
 }
 
 void stepModeWave() {
-  int speed_millis = ns_speed * 1000;
+  int speed_millis = 1000 / ns_speed;
   int mod_millis = millis() % speed_millis;
   float temp_pos = float(mod_millis) / speed_millis;
   wave1_degrees = temp_pos * 360;
 
+  speed_millis = 1000 / ns_nature;
+  mod_millis = millis() % speed_millis;
+  temp_pos = float(mod_millis) / speed_millis;
+  wave2_degrees = temp_pos * 360;
+
   int wave1_max = ns_stroke - ns_texture;
-  frame_position = sin(radians(wave1_degrees)) * wave1_max;
+  int wave1_postition = sin(radians(wave1_degrees)) * wave1_max;
+
+  int wave2_postition = sin(radians(wave2_degrees)) * ns_texture;
+  
+  frame_position = wave1_postition + wave2_postition;
 }
 
 // Callback Classes
