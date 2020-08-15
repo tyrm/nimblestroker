@@ -23,7 +23,7 @@ BLECharacteristic *textureCharacteristic;
 BLECharacteristic *natureCharacteristic;
 
 uint8_t ns_mode = 0;      // 0 - idle, 1 - wave
-uint16_t ns_stroke = 750; // maximum magnitude of stroke (main wave stroke will be ns_stroke - ns_texture)
+uint16_t ns_stroke = 750; // maximum magnitude of stroke (primary wave magnitude will be ns_stroke - ns_texture)
 float ns_speed = 1.0;     // speed in hz of the primary wave
 uint16_t ns_texture = 0;  // magnitude of the secondary wave
 float ns_nature = 0.2;    // speed in hz of the secondary wave
@@ -31,6 +31,7 @@ float ns_nature = 0.2;    // speed in hz of the secondary wave
 bool device_connected = false;
 
 int wave1_degrees = 0;
+int wave2_degrees = 0;
 
 bool frame_ack = false;
 bool frame_air_in = false;
@@ -56,6 +57,9 @@ void sendFrame() {
   byte status_byte = 0x80;
 
   if (frame_ack) {
+    status_byte = status_byte | 0x01;
+  }
+  if (frame_air_in) {
     status_byte = status_byte | 0x01;
   }
 
@@ -125,6 +129,13 @@ void sendFrame() {
   }
 
   Serial1.write(state_code, 7);
+}
+
+void stepModeIdle() {
+  // return to zero
+  if (frame_position != 0) {
+    frame_position = frame_position / 2;
+  }
 }
 
 void stepModeWave() {
