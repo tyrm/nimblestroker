@@ -7,16 +7,19 @@ float running_hz = 1.0;
 
 float cur_step = 0;
 
+String serial_buffer = "";
+
 int last_send;
+
 
 // Frame Values
 bool frame_ack = false;
-
 int frame_position = 0;
 int frame_force = 1023;
 
 // Config
 int wave_max = 750;
+int wave_min = 750;
 
 void setup() {
   Serial.begin(115200);
@@ -24,12 +27,12 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available()) {
-    int inByte = Serial.read();
-    if (inByte == 120) {
-      startModeIdle();
-    } else if (inByte == 119) {
-      startModeWave();
+  if (Serial.available() > 0) {
+    char inChar = (char)Serial.read();
+    if (inChar == '\n') {
+      processSerialBuffer();
+    } else {
+      serial_buffer += inChar;
     }
   }
   
@@ -45,6 +48,21 @@ void loop() {
   }
 }
 
+String getValue(String data, char separator, int index) {
+    int found = 0;
+    int strIndex[] = { 0, -1 };
+    int maxIndex = data.length() - 1;
+
+    for (int i = 0; i <= maxIndex && found <= index; i++) {
+        if (data.charAt(i) == separator || i == maxIndex) {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i+1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
 void printHex(int num, int precision) {
   char tmp[16];
   char format[128];
@@ -53,6 +71,25 @@ void printHex(int num, int precision) {
   
   sprintf(tmp, format, num);
   Serial.print(tmp);
+}
+
+void processSerialBuffer() {
+  String command = getValue(inputString, ',', 0);
+  if (command == "LEVEL") {
+    String channel = getValue(inputString, ',', 1);
+    
+    switch (channel.toInt()) {
+      case 0:
+        ledcWrite(nipple0Channel, level.toInt());   
+        break;
+      case 1:
+        ledcWrite(nipple1Channel, level.toInt());   
+        break;
+      
+    }
+  }
+
+  inputString = "";
 }
 
 void sendFrame() {
@@ -153,7 +190,7 @@ void stepModeIdle() {
       cur_step = 0;
       frame_position = 0;
     } else {
-      float next_speed = 0.5;
+      float next_speed = 1;
       if (cur_step <= 90 || (180 <= cur_step && cur_step <= 270)){
         // invert to go backwards towards zero
         next_speed = -1;
