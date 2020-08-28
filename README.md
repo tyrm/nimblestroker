@@ -22,6 +22,7 @@ __WARNING: The powering coming over the cable is at 12v. Do not connect directly
 | 6   | Unused      |
 
 ### Controller TX
+courtesy of [Exploratory Devices](https://shop.exploratorydevices.com/)
 <table>
   <tr>
     <th>Byte</th>
@@ -93,6 +94,7 @@ __WARNING: The powering coming over the cable is at 12v. Do not connect directly
 </table>
 
 ### Actuator TX
+courtesy of [Exploratory Devices](https://shop.exploratorydevices.com/)
 <table>
   <tr>
     <th>Byte</th>
