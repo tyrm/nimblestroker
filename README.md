@@ -52,7 +52,7 @@ courtesy of [Exploratory Devices](https://shop.exploratorydevices.com/)
     <td>1</td>
     <td>PositionL</td>
     <td colspan="8">POSITION_COMMAND_L</td>
-    <td rowspan="2">Position command bytes (10 bits, -1000 to 1000  with sign bit)</td>
+    <td rowspan="2">Position command bytes (10 bits, -1000 to 1000 with sign bit)</td>
   </tr>
   <tr>
     <td>2</td>
@@ -67,7 +67,7 @@ courtesy of [Exploratory Devices](https://shop.exploratorydevices.com/)
     <td>3</td>
     <td>ForceL</td>
     <td colspan="8">FORCE_COMMAND_L</td>
-    <td rowspan="2">Force command bytes (10 bits, -1000 to 1000  with sign bit)</td>
+    <td rowspan="2">Force command bytes (10 bits, 0 to 1023)</td>
   </tr>
   <tr>
     <td>4</td>
@@ -139,7 +139,7 @@ courtesy of [Exploratory Devices](https://shop.exploratorydevices.com/)
     <td>3</td>
     <td>ForceL</td>
     <td colspan="8">FORCE_FEEDBACK_L</td>
-    <td rowspan="2">Force feedback bytes (10 bits, -1000 to 1000  with sign bit)</td>
+    <td rowspan="2">Force feedback bytes (10 bits, -1023 to 1023  with sign bit)</td>
   </tr>
   <tr>
     <td>4</td>
